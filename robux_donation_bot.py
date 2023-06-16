@@ -16,16 +16,14 @@ async def on_ready():
 
 @bot.tree.command(name="donate")
 async def donate(interaction: discord.Interaction, amount_of_robux: int):
+    await interaction.response.send_message("Creating gamepass...")
     res = requests.post("https://buxpay.xyz/payments/create",json={"api_key":api_key,"price":int(amount_of_robux)}).json() # create an invoice
-    print(res)
     gamepass = res["data"]["gamepass"] # gamepass id
     uid = res["data"]["uid"] #unique id for checking the status, etc.
-
-    await interaction.response.send_message(f"Please purchase this gamepass: https://www.roblox.com/game-pass/{gamepass}/",ephemeral=True)
+    await interaction.edit_original_response(f"Please purchase this gamepass: https://www.roblox.com/game-pass/{gamepass}/",ephemeral=True)
 
     def check_if_bought():
       check = requests.get(f"https://buxpay.xyz/payments/info",json={"api_key":api_key,"uid":uid})
-      print(check.text)
       if check.json()["data"]["status"] == "unpaid": 
           return False
       else:
